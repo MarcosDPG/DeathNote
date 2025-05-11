@@ -15,6 +15,10 @@ RUN pip install -r requirements.txt
 # Copy the application code to the working directory
 COPY . .
 
+# Específicamente copia el archivo de credenciales por separado también
+COPY ./app/firebase/deathnote.json ./app/firebase/deathnote.json
+
+
 # Expose the port on which the application will run
 EXPOSE 8080
 
