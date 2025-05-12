@@ -24,7 +24,11 @@ async def listar_criminales():
 @router.post("/registrar")
 async def registrar(criminal: Criminal):
     try:
-        criminal_data = criminal.dict()
+        # Eliminar espacios y capitalizar nombres y apellidos
+        criminal.nombres = criminal.nombres.strip().title()
+        criminal.apellidos = criminal.apellidos.strip().title()
+
+        criminal_data = criminal.model_dump()
         doc_id = registrar_criminal(criminal_data)
         return {"id": doc_id, "mensaje": "Criminal registrado exitosamente."}
     except Exception as e:
