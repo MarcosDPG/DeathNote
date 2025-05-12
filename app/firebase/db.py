@@ -57,7 +57,8 @@ def escribir_nombre_deathnote(nombres: str, apellidos: str):
     criminal_data = criminal_doc.to_dict()
 
     # 2. Verificar regla de la imagen
-    puede_morir = criminal_data.get("foto_base64", "no_foto") != "no_foto"
+    if criminal_data.get("foto_base64", "no_foto") == "no_foto":
+        raise ValueError("El criminal no tiene una foto registrada, no se puede ejecutar")
 
     # 3. Verficar que el criminal no esté sentenciado
     sentencia_query = db.collection("deathnote").where(filter=FieldFilter("criminal_id", "==", criminal_doc.id)).limit(1).get()
