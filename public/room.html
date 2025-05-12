@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="public/css/room.css">
+    <link rel="stylesheet" type="text/css" href="public/css/room_mobile.css">
+    <title>Habitación</title>
+</head>
+<body>   
+    <div id="room">
+        <div id="object_selected" class="hidden">
+            <div id="hojas" class="hoja-container hidden">
+                <div id="btn-close-book" onclick="cerrar_libro()">
+                    <p>X</p>
+                </div>
+                <div class="hoja-navegacion">
+                    <button id="btn-prev" onclick="cambiarHoja(-1)">←</button>
+                    <button id="btn-next" onclick="cambiarHoja(1)">→</button>
+                </div>
+                <!-- Las hojas se insertan aquí con JS -->
+            </div>
+            <img style="opacity: 0;" src="public/assets/deathnote.jpg" alt="book" id="img-book">
+        </div> 
+        <div id="deathnote_object">
+            <img class="object" src="public/assets/deathnote.jpg" alt="book">
+        </div>
+        <div id="portatil">
+            <div id="pantalla">
+                <div id="personas_container">
+                    <ul id="personas">
+                        <li class="persona">
+                            <img src="public/assets/shinigami.gif" alt="ryuk" class="persona-img">
+                            <div class="persona-info">
+                                <h3 class="persona-nombre">Ryuk</h3>
+                                <p class="persona-detalle">Shinigami curioso que dejó caer su Death Note.</p>
+                            </div>
+                        </li>
+                        <li class="persona">
+                            <img src="public/assets/shinigami.gif" alt="ryuk" class="persona-img">
+                            <div class="persona-info">
+                                <h3 class="persona-nombre">Ryuk</h3>
+                                <p class="persona-detalle">Shinigami curioso que dejó caer su Death Note.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div id="reglas">
+                    <img class="rule" src="public/assets/reglas.jfif" alt="reglas" id="img-reglas">
+                </div>
+            </div>
+            <img class="object" src="public/assets/portatil.png" alt="laptop">
+        </div>
+        <!--<img class="object" id="deathnote_object" src="public/assets/deathnote.jpg" alt="book" id="img-book">-->
+    </div>
+    <script src="public/js/book.js"></script>
+    <script src="public/js/room.js"></script>
+</body>
+</html>

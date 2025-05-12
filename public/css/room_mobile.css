@@ -1,0 +1,49 @@
+@media screen and (max-width: 1000px) {
+    #deathnote_object img {
+        width: 100%;
+    }
+
+    @keyframes open_book {
+        0% {
+            transform-origin: left center;
+                max-height: 100%;
+            height: fit-content;
+            transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+            left: 0;
+            top: 50%;
+            translate: 0% -50%;
+            border-bottom: 0px;
+            border-right: 0px;
+        }
+        100% {
+            transform-origin: left center;
+            max-height: 100%;
+            height: fit-content;
+            transform: rotateX(0deg) rotateY(-130deg) rotateZ(0deg);
+            left: 0;
+            top: 50%;
+            translate: 0% -50%;
+            border-bottom: 0px;
+            border-right: 0px;
+        }
+    }
+
+    @keyframes show_object {
+        0% {
+        }
+        80% {
+            border-bottom: 0px;
+            border-right: 0px;
+        }
+        100% {
+            max-height: 100%;
+            height: fit-content;
+            transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+            left: 0;
+            top: 50%;
+            translate: 0% -50%;
+            border-bottom: 0px;
+            border-right: 0px;
+        }
+    }
+}
