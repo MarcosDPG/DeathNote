@@ -17,6 +17,10 @@ class CausaMuerteRequest(BaseModel):
     criminal_id: str
     causa_muerte: str
 
+class DetallesMuerteRequest(BaseModel):
+    criminal_id: str
+    detalles_muerte: str
+
 # Esperar 40 segundos antes de asignar la muerte por defecto y notificar a los clientes conectados
 async def asignar_muerte_defecto(criminal_id: str):
     # Simular un retraso de 40 segundos antes
@@ -111,3 +115,46 @@ async def escribir_causa_muerte(causa_muerte_request: CausaMuerteRequest, backgr
 
     return {"mensaje": f"Se ha asignado la causa de muerte '{causa_muerte_request.causa_muerte}' al criminal {criminal_data['nombre_completo']}"}
 
+async def establecer_detalles_muerte(criminal_id):
+    # Esperar 400 segundos antes de asignar los detalles de muerte
+    await asyncio.sleep(40)
+
+    criminal = await obtener_criminal_death_note(criminal_id)
+    criminal_data = criminal["data"]
+    criminal_ref = criminal["ref"]
+
+    # En caso de que el criminal tenga un proceso diferente al que se le asignó una causa de muerte, no se ejecuta
+    if not criminal_data or criminal_data["proceso"] != EstadoCriminal.DETALLADO.value:
+        return {"error": "El criminal no existe, está en otro proceso o ya ha sido ejecutado."}
+
+    criminal_data["proceso"] = EstadoCriminal.MUERTO.value
+    criminal_data["fecha_ejecucion"] = datetime.now().isoformat()
+    await actualizar_muerte_deathnote(criminal_ref, criminal_data)
+    # Actualizar el estado del criminal a muerto en la colección de criminales
+    actualizar_estado_criminal(criminal_id)
+    await notificar_muerte(criminal_data)
+    return {"mensaje": f"Criminal {criminal_id} ejecutado exitosamente con detalles"}
+
+@router.put("/detalles/")
+async def escribir_detalles_muerte(detalles_muerte_request: DetallesMuerteRequest, background_tasks: BackgroundTasks):
+    criminal = await obtener_criminal_death_note(detalles_muerte_request.criminal_id.strip())
+
+    if not criminal:
+        raise HTTPException(status_code=404, detail="Criminal no encontrado en la Death Note")
+
+    criminal_data = criminal["data"]
+    criminal_ref = criminal["ref"]
+
+    # Verificar si el criminal ya ha sido ejecutado
+    if criminal_data["proceso"] != EstadoCriminal.ASIGNADO.value:
+        raise HTTPException(status_code=400, detail="El criminal ya ha sido ejecutado o no se le ha asignado causa de muerte")
+
+    criminal_data["detalles_muerte"] = detalles_muerte_request.detalles_muerte
+    criminal_data["proceso"] = EstadoCriminal.DETALLADO.value
+
+    # Actualizar en la base de datos
+    await actualizar_muerte_deathnote(criminal_ref, criminal_data)
+    # Establcer detalles de muerte después para que el criminal se ejecute en 40 segundos
+    background_tasks.add_task(establecer_detalles_muerte, detalles_muerte_request.criminal_id)
+
+    return {"mensaje": f"Se han asignado los detalles de muerte '{detalles_muerte_request.detalles_muerte}' al criminal {criminal_data['nombre_completo']}, morirá en 40 segundos."}
