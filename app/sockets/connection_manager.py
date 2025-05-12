@@ -19,5 +19,8 @@ async def websocket_eventos(websocket: WebSocket):
 
 # Notificar a todos los clientes conectados sobre la muerte de un criminal
 async def notificar_muerte(muerte_criminal: Dict[str, str]):
+    # Convertir las fechas a cadenas para evitar problemas de serialización
+    muerte_criminal["fecha_registro"] = str(muerte_criminal["fecha_registro"])
+    muerte_criminal["fecha_ejecucion"] = str(muerte_criminal["fecha_ejecucion"])
     for conexion in conexiones_activas:
         await conexion.send_json(muerte_criminal)
