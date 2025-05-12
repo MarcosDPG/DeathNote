@@ -3,11 +3,20 @@ from datetime import datetime
 
 from fastapi import APIRouter, HTTPException, BackgroundTasks
 from pydantic import BaseModel
-from app.firebase.db import *
 
+from app.firebase.db import (
+    escribir_nombre_deathnote,
+    obtener_criminal_death_note,
+    actualizar_muerte_deathnote,
+    actualizar_estado_criminal,
+    EstadoCriminal
+)
 from app.sockets.connection_manager import notificar_muerte
 
 router = APIRouter(prefix="/api/deathnote")
+TIEMPO_ESPERA_EJECUCION_DEFAULT = 40  # segundos
+TIEMPO_ESPERA_EJECUCION_CAUSA = 400  # segundos
+TIEMPO_ESPERA_EJECUCION_DETALLES = 40  # segundos
 
 class DeathNoteRequest(BaseModel):
     nombres: str
@@ -22,9 +31,9 @@ class DetallesMuerteRequest(BaseModel):
     detalles_muerte: str
 
 # Esperar 40 segundos antes de asignar la muerte por defecto y notificar a los clientes conectados
-async def asignar_muerte_defecto(criminal_id: str):
+async def asignar_muerte_defecto(criminal_id: str) -> dict:
     # Simular un retraso de 40 segundos antes
-    await asyncio.sleep(40)
+    await asyncio.sleep(TIEMPO_ESPERA_EJECUCION_DEFAULT)
     # Revisar los datos del criminal en la death note
     criminal_info = await obtener_criminal_death_note(criminal_id)
     # Verificar si el criminal existe y su estado es "pendiente"
@@ -52,11 +61,11 @@ async def asignar_muerte_defecto(criminal_id: str):
 
 
 @router.post("/")
-async def escribir_muerte(request: DeathNoteRequest, background_tasks: BackgroundTasks):
+async def escribir_muerte(request: DeathNoteRequest, background_tasks: BackgroundTasks) -> dict:
     try:
         resultado = escribir_nombre_deathnote(
-            nombres=request.nombres,
-            apellidos=request.apellidos
+            nombres=request.nombres.strip().title(),
+            apellidos=request.apellidos.strip().title()
         )
         # Si no se especifica causa de muerte, asignar una por defecto
         background_tasks.add_task(asignar_muerte_defecto, resultado["criminal_id"])
@@ -68,9 +77,9 @@ async def escribir_muerte(request: DeathNoteRequest, background_tasks: Backgroun
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error al escribir en la Death Note: {e}")
 
-async def establecer_causa_muerte(criminal_id):
+async def establecer_causa_muerte(criminal_id) -> dict:
     # Esperar 400 segundos antes de asignar la causa de muerte
-    await asyncio.sleep(400)
+    await asyncio.sleep(TIEMPO_ESPERA_EJECUCION_CAUSA)
 
     criminal = await obtener_criminal_death_note(criminal_id)
     criminal_data = criminal["data"]
@@ -92,7 +101,7 @@ async def establecer_causa_muerte(criminal_id):
     return {"mensaje": f"Criminal {criminal_id} ejecutado exitosamente sin detalles"}
 
 @router.put("/causa-muerte/")
-async def escribir_causa_muerte(causa_muerte_request: CausaMuerteRequest, background_tasks: BackgroundTasks):
+async def escribir_causa_muerte(causa_muerte_request: CausaMuerteRequest, background_tasks: BackgroundTasks) -> dict:
     criminal = await obtener_criminal_death_note(causa_muerte_request.criminal_id.strip())
 
     if not criminal:
@@ -113,11 +122,11 @@ async def escribir_causa_muerte(causa_muerte_request: CausaMuerteRequest, backgr
 
     background_tasks.add_task(establecer_causa_muerte, causa_muerte_request.criminal_id)
 
-    return {"mensaje": f"Se ha asignado la causa de muerte '{causa_muerte_request.causa_muerte}' al criminal {criminal_data['nombre_completo']}"}
+    return {"mensaje": f"Se ha asignado la causa de muerte '{causa_muerte_request.causa_muerte}' al criminal {criminal_data['nombre_completo']}, tienes 400 segundos para dar detalles."}
 
-async def establecer_detalles_muerte(criminal_id):
+async def establecer_detalles_muerte(criminal_id) -> dict:
     # Esperar 400 segundos antes de asignar los detalles de muerte
-    await asyncio.sleep(40)
+    await asyncio.sleep(TIEMPO_ESPERA_EJECUCION_DETALLES)
 
     criminal = await obtener_criminal_death_note(criminal_id)
     criminal_data = criminal["data"]
@@ -136,7 +145,7 @@ async def establecer_detalles_muerte(criminal_id):
     return {"mensaje": f"Criminal {criminal_id} ejecutado exitosamente con detalles"}
 
 @router.put("/detalles/")
-async def escribir_detalles_muerte(detalles_muerte_request: DetallesMuerteRequest, background_tasks: BackgroundTasks):
+async def escribir_detalles_muerte(detalles_muerte_request: DetallesMuerteRequest, background_tasks: BackgroundTasks) -> dict:
     criminal = await obtener_criminal_death_note(detalles_muerte_request.criminal_id.strip())
 
     if not criminal:
