@@ -11,3 +11,8 @@ app.mount("/public", StaticFiles(directory="public"), name="public")
 def read_html():
     html_path = Path("public/index.html")
     return HTMLResponse(content=html_path.read_text(), status_code=200)
+
+@app.get("/room", response_class=HTMLResponse)
+def read_html():
+    html_path = Path("public/room.html")
+    return HTMLResponse(content=html_path.read_text(), status_code=200)
