@@ -74,7 +74,7 @@ def test_actualizar_estado_criminal():
 def test_escribir_nombre_deathnote_exitoso():
     mock_doc = MagicMock()
     mock_doc.exists = True
-    mock_doc.to_dict.return_value = {"nombre": "Jane", "foto_base64": "foto"}
+    mock_doc.to_dict.return_value = {"nombre_completo": "Jane", "foto_base64": "foto"}
     mock_deathnote_ref = MagicMock()
 
     with patch("app.firebase.db.db.collection") as mock_collection:

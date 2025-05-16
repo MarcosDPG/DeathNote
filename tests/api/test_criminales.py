@@ -57,7 +57,7 @@ def test_registrar_criminal_exitoso():
     mock_id = "1"
     with patch('app.api.criminales.registrar_criminal', return_value=mock_id):
         data = {
-            "nombre": "Jane Doe",
+            "nombre_completo": "Jane Doe",
             "foto_base64": "no_foto",
             "estado": "vivo",
             "registrado_en": "2025-05-16T10:00:00"
