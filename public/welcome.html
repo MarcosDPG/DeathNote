@@ -1,0 +1,33 @@
+<html>
+    <head>
+        <title>The Death Note</title>
+        <link rel="stylesheet" type="text/css" href="public/css/styles.css">
+        <link rel="stylesheet" type="text/css" href="public/css/styles_mobile.css">
+        <script src="script.js"></script>
+    </head>
+    <body>
+        <main>
+            <div id="book-intro">
+                <img src="public/assets/deathnote.jpg" alt="Death Note" id="img-deathnote">
+                <div class="button" id="btn-entrar">Entrar</div>
+            </div>
+            <div id="fondo">
+                <img src="public/assets/shinigami.png" alt="shinigami" id="img-shinigami">
+            </div>
+            <div id="btn-police">
+                <img src="public/assets/L-letra.svg" alt="L" id="img-L">
+            </div>
+            <div id="police">
+                <img src="public/assets/L-light.svg" alt="police" id="img-police">
+            </div>
+        </main>
+        <script>
+            document.getElementById("btn-entrar").addEventListener("click", function() {
+                window.location.href = "/room";
+            });
+            document.getElementById("btn-police").addEventListener("click", function() {
+                window.location.href = "/office";
+            });
+        </script>
+    </body>
+</html>
