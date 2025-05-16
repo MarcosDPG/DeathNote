@@ -1,17 +1,16 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
-from app.firebase.db import registrar_criminal, obtener_criminales
+from app.firebase.db import registrar_criminal, obtener_criminales, obtener_criminales_nombre
 from typing import Optional
 from datetime import datetime
 
 router = APIRouter(prefix="/api/criminales")
 
 class Criminal(BaseModel):
-    nombres: str
-    apellidos: str
+    nombre: str
     foto_base64: Optional[str] = Field(default="no_foto")  # Campo opcional con valor por defecto
     estado: str = "vivo"
-    registrado_en: str = datetime.utcnow().isoformat()  # Genera automáticamente la fecha
+    registrado_en: str = datetime.now()  # Genera automáticamente la fecha
 
 @router.get("/")
 async def listar_criminales():
@@ -21,12 +20,21 @@ async def listar_criminales():
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+@router.get("/nombre/{nombre}")
+async def obtener_criminal(nombre: str):
+    try:
+        criminal = obtener_criminales_nombre(nombre)
+        if not criminal:
+            raise HTTPException(status_code=404, detail="Criminal no encontrado")
+        return criminal
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
 @router.post("/registrar")
 async def registrar(criminal: Criminal):
     try:
         # Eliminar espacios y capitalizar nombres y apellidos
-        criminal.nombres = criminal.nombres.strip().title()
-        criminal.apellidos = criminal.apellidos.strip().title()
+        criminal.nombre = criminal.nombre.strip().title()
 
         criminal_data = criminal.model_dump()
         doc_id = registrar_criminal(criminal_data)
