@@ -12,12 +12,6 @@ from datetime import datetime
 
 router = APIRouter(prefix="/api/criminales")
 
-class Criminal(BaseModel):
-    nombre: str
-    foto_base64: Optional[str] = Field(default="no_foto")  # Campo opcional con valor por defecto
-    estado: str = "vivo"
-    registrado_en: str = datetime.now()  # Genera automáticamente la fecha
-
 @router.get("/")
 async def listar_criminales():
     try:
