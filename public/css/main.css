@@ -1,0 +1,38 @@
+#espera {
+    height: 100dvh;
+    width: 100dvw;
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: black;
+    z-index: 1000;
+    opacity: 1;
+}
+
+#espera img {
+    max-height: 90%;
+    max-width: 80%;
+    opacity: 0.9;
+    z-index: 1000;
+}
+
+.mostrar {
+    animation: carga 0.5s reverse forwards;
+}
+
+.ocultar {
+    animation: carga 0.5s ease forwards;
+}
+
+@keyframes carga {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}

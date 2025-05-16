@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="public/css/room.css">
     <link rel="stylesheet" type="text/css" href="public/css/room_mobile.css">
+    <link rel="stylesheet" type="text/css" href="public/css/main.css">
     <title>Habitación</title>
 </head>
 <body>   
@@ -58,17 +59,23 @@
                 <p>X</p>
             </div>
         </div>
+        <div id="btn-police" onclick="onGoTo('/office')">
+            <img src="public/assets/L-letra.svg" alt="L" id="img-L">
+        </div>
         <div id="portavoz">
-            <img id="shinigami" src="public/assets/shinigami.png" alt="shinigami">
+            <img id="shinigami" style="opacity: 0; transition: opacity 0.5s ease-out;" src="public/assets/shinigami.png" alt="shinigami">
             <div id="burbuja-mensaje">
                 <span id="texto-mensaje"></span>
                 <span id="cursor-escritura">|</span>
             </div>
-
         </div>
+    </div>
+    <div id="espera">
+        <img src="public/assets/shinigami.gif" alt="esperar" id="img-esperar">
     </div>
     <script src="public/js/book.js"></script>
     <script src="public/js/room.js"></script>
     <script src="public/js/eventos.js"></script>
+    <script src="public/js/main.js"></script>
 </body>
 </html>

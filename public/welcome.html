@@ -3,31 +3,27 @@
         <title>The Death Note</title>
         <link rel="stylesheet" type="text/css" href="public/css/styles.css">
         <link rel="stylesheet" type="text/css" href="public/css/styles_mobile.css">
-        <script src="script.js"></script>
+        <link rel="stylesheet" type="text/css" href="public/css/main.css">
     </head>
     <body>
         <main>
             <div id="book-intro">
                 <img src="public/assets/deathnote.jpg" alt="Death Note" id="img-deathnote">
-                <div class="button" id="btn-entrar">Entrar</div>
+                <div class="button" id="btn-entrar" onclick="onGoTo('/room')">Entrar</div>
             </div>
             <div id="fondo">
                 <img src="public/assets/shinigami.png" alt="shinigami" id="img-shinigami">
             </div>
-            <div id="btn-police">
+            <div id="btn-police" onclick="onGoTo('/office')">
                 <img src="public/assets/L-letra.svg" alt="L" id="img-L">
             </div>
             <div id="police">
                 <img src="public/assets/L-light.svg" alt="police" id="img-police">
             </div>
         </main>
-        <script>
-            document.getElementById("btn-entrar").addEventListener("click", function() {
-                window.location.href = "/room";
-            });
-            document.getElementById("btn-police").addEventListener("click", function() {
-                window.location.href = "/office";
-            });
-        </script>
+        <div id="espera">
+            <img src="public/assets/shinigami.gif" alt="esperar" id="img-esperar">
+        </div>
+        <script src="public/js/main.js"></script>
     </body>
 </html>

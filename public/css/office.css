@@ -314,3 +314,35 @@ ul#personas-lista {
   display: flex;
   gap: 1rem;
 }
+
+#btn-police {
+  border: 2px solid white;
+  overflow: hidden;
+  z-index: 3;
+  height: 60px;
+  width: 60px;
+  position: absolute;
+  right: 30px;
+  top: 30px;
+  background-color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 4px;
+  border-radius: 100%;
+}
+
+#btn-police > img {
+  max-width: 96%;
+  translate: 0% 15%;
+}
+
+#btn-police:hover {
+  cursor: pointer;
+  filter: drop-shadow(0px 0px 5px gray);
+}
+
+#btn-police:hover > img {
+  transition: transform 0.4s ease;
+  transform: scale(0.8);
+}
