@@ -10,6 +10,10 @@ from app.services.registro_muerte import escribir_muerte
 from app.services.definicion_causa import escribir_causa_muerte
 from app.services.definicion_detalles import escribir_detalles_muerte
 
+from app.firebase.db import (
+    obtener_hojas_deathnote
+)
+
 router = APIRouter(prefix="/api/deathnote")
 
 @router.post("/id/")
@@ -23,3 +27,7 @@ async def registrar_causa_muerte(request: CausaMuerteRequest):
 @router.put("/detalles/")
 async def registrar_detalles_muerte(request: DetallesMuerteRequest):
     return await escribir_detalles_muerte(request)
+
+@router.get("/hojas/")
+async def obtener_hojas():
+    return await obtener_hojas_deathnote()
