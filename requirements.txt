@@ -3,3 +3,6 @@ pydantic
 uvicorn[standard]
 firebase-admin
 aioredis
+pytest
+pytest-asyncio
+httpx
