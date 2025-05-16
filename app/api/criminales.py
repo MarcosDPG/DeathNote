@@ -1,6 +1,12 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Path, Body, status
+from app.models.models import Criminal, CriminalUpdate
+from app.firebase.db import (
+    registrar_criminal,
+    obtener_criminales,
+    obtener_criminales_nombre,
+    actualizar_criminal as actualizar_criminal_db  
+)
 from pydantic import BaseModel, Field
-from app.firebase.db import registrar_criminal, obtener_criminales, obtener_criminales_nombre
 from typing import Optional
 from datetime import datetime
 
@@ -33,13 +39,46 @@ async def obtener_criminal(nombre: str):
 @router.post("/registrar")
 async def registrar(criminal: Criminal):
     try:
-        # Eliminar espacios y capitalizar nombres y apellidos
-        criminal.nombre = criminal.nombre.strip().title()
-
+        criminal.nombre_completo = criminal.nombre_completo.strip().title()
+        
         criminal_data = criminal.model_dump()
         doc_id = registrar_criminal(criminal_data)
         return {"id": doc_id, "mensaje": "Criminal registrado exitosamente."}
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error al registrar criminal: {e}")
 
+@router.patch("/{criminal_id}")
+async def actualizar_criminal(
+    criminal_id: str = Path(..., title="ID del criminal a actualizar"),
+    updates: CriminalUpdate = Body(...)
+):
+    try:
+        updates_dict = updates.model_dump(exclude_unset=True)
+        
+        if not updates_dict:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="No se proporcionaron campos válidos para actualizar"
+            )
 
+        if "nombre_completo" in updates_dict:
+            updates_dict["nombre_completo"] = updates_dict["nombre_completo"].strip().title()
+
+        # Llamada síncrona
+        resultado = actualizar_criminal_db(criminal_id, updates_dict)
+        
+        return {
+            "mensaje": "Criminal actualizado exitosamente",
+            "datos_actualizados": {
+                k: v for k, v in resultado.items() 
+                if k in updates_dict or k == "id"
+            }
+        }
+        
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error interno: {str(e)}"
+        )
