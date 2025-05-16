@@ -53,6 +53,7 @@
 
     @keyframes abrir_portatil {
         0% {
+            height: fit-content;
             width: 218px;
         }
         100% {
