@@ -37,8 +37,9 @@ function guardarPersona(event) {
   const archivo = form.imagen.files[0];
   const editando = form.getAttribute('data-editando') === 'true';
 
+  const base64Foto = fotoToBase64(archivo);
   if (editando) {
-    alert(`Persona actualizada: ${nombre}`);
+    actualizarData(form.getAttribute('data-id'), nombre, base64Foto);
   } else {
     alert(`Persona guardada: ${nombre}` + (archivo ? " (con imagen)" : ""));
   }
@@ -52,11 +53,22 @@ function guardarPersona(event) {
   volverALista();
 }
 
+function fotoToBase64(foto){
+  if (foto) {
+    const reader = new FileReader();
+    reader.onload = function() {
+      base64Foto = reader.result.split(',')[1];
+    };
+    reader.readAsDataURL(foto);
+  }
+}
 
+function actualizarData(id, nombre, foto_base64) {}
 
-function editarPersona(nombre) {
+function editarPersona(id, nombre) {
   const formulario = document.querySelector('#formulario-persona form');
   formulario.nombre.value = nombre;
+  formulario.setAttribute('data-id', id);
   formulario.setAttribute('data-editando', 'true');
   formulario.setAttribute('data-id', nombre);
 
