@@ -1,3 +1,5 @@
-fastapi[standard]
+fastapi
 pydantic
-uvicorn==0.34.2
+uvicorn[standard]
+firebase-admin
+aioredis

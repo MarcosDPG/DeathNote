@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <style>
+        .death-note {
+            background-color: black;
+            color: white;
+            padding: 20px;
+            font-family: 'Times New Roman', serif;
+        }
+        textarea {
+            background: black;
+            color: red;
+            border: 1px solid #333;
+        }
+    </style>
+</head>
+<body class="death-note">
+    <h1>✍️ Death Note</h1>
+    <form id="form-muerte">
+        <label>Nombres: <input type="text" id="nombres" required></label><br>
+        <label>Apellidos: <input type="text" id="apellidos" required></label><br>
+        <label>Causa de muerte: <input type="text" id="causa" placeholder="ataque al corazón"></label><br>
+        <label>Detalles (6m 40s): <textarea id="detalles"></textarea></label><br>
+        <button type="button" id="btn-escribir">Escribir Nombre</button>
+    </form>
+    <div id="resultado"></div>
+
+    <script>
+        document.getElementById("btn-escribir").addEventListener("click", async () => {
+            const payload = {
+                nombres: document.getElementById("nombres").value,
+                apellidos: document.getElementById("apellidos").value,
+                causa_muerte: document.getElementById("causa").value || "ataque al corazón",
+                detalles_muerte: document.getElementById("detalles").value || ""
+            };
+
+            const res = await fetch("http://localhost:8080/api/deathnote/escribir", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            
+            const resultadoDiv = document.getElementById("resultado");
+            if (data.advertencia) {
+                resultadoDiv.innerHTML = `<p style="color: yellow">⚠️ ${data.advertencia}</p>`;
+            } else {
+                resultadoDiv.innerHTML = `<p style="color: red">☠️ ${data.mensaje}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>
