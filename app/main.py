@@ -16,3 +16,8 @@ def read_html():
 def read_html():
     html_path = Path("public/room.html")
     return HTMLResponse(content=html_path.read_text(), status_code=200)
+
+@app.get("/office", response_class=HTMLResponse)
+def read_html():
+    html_path = Path("public/office.html")
+    return HTMLResponse(content=html_path.read_text(), status_code=200)

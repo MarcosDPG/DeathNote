@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oficina</title>
+    <link rel="stylesheet" type="text/css" href="public/css/office.css">
+    <link rel="stylesheet" type="text/css" href="public/css/office_mobile.css">
+</head>
+<body>
+    <div id="portatil">
+        <div id="pantalla">
+            <div id="portal">
+                <!-- Vista de Lista -->
+                <div id="lista-personas" class="vista">
+                    <div class="encabezado">
+                    <h2>Personas Registradas</h2>
+                    <button class="btn" onclick="mostrarFormulario()">Registrar Nuevo</button>
+                    </div>
+                    <ul id="personas-lista">
+                    <!-- Persona de ejemplo -->
+                    <li class="persona-item">
+                        <div class="img-wrapper">
+                            <img src="public/assets/shinigami.gif" alt="Ryuk">
+                            <svg class="estado-muerto" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="red" width="48" height="48">
+                                <path d="M32 2C19.85 2 10 11.85 10 24c0 6.53 2.76 12.42 7.18 16.57L17 48c0 1.1.9 2 2 2h6v4a2 2 0 0 0 4 0v-4h6v4a2 2 0 0 0 4 0v-4h6c1.1 0 2-.9 2-2l-.18-7.43C51.24 36.42 54 30.53 54 24 54 11.85 44.15 2 32 2zm-8 26a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm16 0a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"/>
+                            </svg>
+                        </div>
+                        <div class="persona-texto">
+                            <h3>Ryuk</h3>
+                            <span class="estado">Muerto</span>
+                        </div>
+                        <button class="editar-btn" onclick="editarPersona('Ryuk')">🖉</button>
+                    </li>
+                    <!-- Más personas acá -->
+                    </ul>
+                </div>
+
+                <!-- Vista de Formulario -->
+                <div id="formulario-persona" class="vista oculto">
+                    <h2 id="form-titulo">Registrar nueva persona</h2>
+                    <form onsubmit="guardarPersona(event)">
+                    <label>Nombre completo:</label>
+                    <input type="text" name="nombre" required>
+                    <label>Imagen (opcional):</label>
+                    <input type="file" name="imagen" accept="image/*">
+                    <div class="form-botones">
+                        <button type="submit" class="btn">Guardar</button>
+                        <button type="button" class="btn" onclick="volverALista()">Cancelar</button>
+                    </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <img class="object" src="public/assets/portatil.png" alt="laptop">
+        <div id="btn-close-book" onclick="cerrar_portatil(event)">
+            <p>X</p>
+        </div>
+    </div>
+    <script src="public/js/office.js"></script>
+</body>
+</html>
