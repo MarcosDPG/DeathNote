@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="public/css/room.css">
+    <link rel="stylesheet" type="text/css" href="public/css/room_mobile.css">
+    <link rel="stylesheet" type="text/css" href="public/css/main.css">
+    <title>Habitación</title>
+</head>
+<body>   
+    <div id="room">
+        <div id="object_selected" class="hidden">
+            <div id="hojas" class="hoja-container hidden">
+                <div id="btn-close-book" onclick="cerrar_libro()">
+                    <p>X</p>
+                </div>
+                <div class="hoja-navegacion">
+                    <button id="btn-prev" onclick="cambiarHoja(-1)">←</button>
+                    <button id="btn-next" onclick="cambiarHoja(1)">→</button>
+                </div>
+                <!-- Las hojas se insertan aquí con JS -->
+            </div>
+            <img style="opacity: 0;" src="public/assets/deathnote.jpg" alt="book" id="img-book">
+        </div> 
+        <div id="deathnote_object">
+            <img class="object" src="public/assets/deathnote.jpg" alt="book">
+        </div>
+        <div id="portatil">
+            <div id="pantalla">
+                <div id="personas_container">
+                    <div class="feed-header">🗞 Últimos registros criminales</div>
+                    <ul id="personas">
+                        <li class="persona">
+                            <img src="public/assets/shinigami.gif" alt="ryuk" class="persona-img">
+                            <div class="persona-info">
+                                <h3 class="persona-nombre">Ryuk</h3>
+                                <p class="persona-detalle">Shinigami curioso que dejó caer su Death Note.</p>
+                            </div>
+                        </li>
+                        <li class="persona">
+                            <img src="public/assets/shinigami.gif" alt="ryuk" class="persona-img">
+                            <div class="persona-info">
+                                <h3 class="persona-nombre">Ryuk</h3>
+                                <p class="persona-detalle">Shinigami curioso que dejó caer su Death Note.</p>
+                            </div>
+                        </li>
+                    </ul>
+                    <div class="ticker">
+                        <div class="ticker-content">🔴 Aumentan los asesinatos de Kira. 🔴 La NPA ha reclutado más de 1000 agentes para capturar a Kira. 🔴 L se une a la investigación contra Kira.</div>
+                    </div>
+                </div>
+                <div id="reglas">
+                    <img class="rule" src="public/assets/uso.jpeg" alt="reglas" id="img-reglas">
+                </div>
+            </div>
+            <img class="object" src="public/assets/portatil.png" alt="laptop">
+            <div id="btn-close-book" onclick="cerrar_portatil(event)">
+                <p>X</p>
+            </div>
+        </div>
+        <div id="btn-police" onclick="onGoTo('/office')">
+            <img src="public/assets/L-letra.svg" alt="L" id="img-L">
+        </div>
+        <div id="portavoz">
+            <img id="shinigami" style="opacity: 0; transition: opacity 0.5s ease-out;" src="public/assets/shinigami.png" alt="shinigami">
+            <div id="burbuja-mensaje">
+                <span id="texto-mensaje"></span>
+                <span id="cursor-escritura">|</span>
+            </div>
+        </div>
+    </div>
+    <div id="espera">
+        <img src="public/assets/shinigami.gif" alt="esperar" id="img-esperar">
+    </div>
+    <script src="public/js/book.js"></script>
+    <script src="public/js/room.js"></script>
+    <script src="public/js/eventos.js"></script>
+    <script src="public/js/main.js"></script>
+</body>
+</html>
