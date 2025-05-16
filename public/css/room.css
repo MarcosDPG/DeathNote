@@ -356,15 +356,33 @@ body > div > img {
 }
 
 #personas_container {
-    height: 100%;
-    width: -webkit-fill-available;
-    background-image: url('/public/assets/fondo_portal.png');
-    padding: 10px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    font-family: 'Courier New', Courier, monospace;
+position: relative;
+height: 100%;
+width: -webkit-fill-available;
+background-image: url('/public/assets/fondo_portal.png');
+background-size: cover;
+background-position: center;
+overflow-y: auto;
+display: flex;
+flex-direction: column;
+font-family: 'Courier New', Courier, monospace;
+box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.6);
+scrollbar-gutter: stable;
+}
+
+#personas_container,
+#personas_container * {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+#personas_container::-webkit-scrollbar {
+width: 2px;
+}
+
+#personas_container::-webkit-scrollbar-thumb {
+background: #444;
+border-radius: 2px;
 }
 
 #personas_container:hover {
@@ -376,50 +394,119 @@ body > div > img {
 }
 
 #personas {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.persona {
-    background-color: #1c1c1c;
-    border: 1px solid #333;
-    padding: 10px;
-    border-radius: 8px;
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
-    transition: background-color 0.3s ease;
+list-style: none;
+display: flex;
+flex-direction: column;
+gap: 0px;
+padding: 0;
+margin: 0;
 }
 
 .persona:hover {
-    background-color: #2a2a2a;
+background-color: rgba(134, 134, 134, 0.4);
+box-shadow: 0 0 8px rgba(0, 255, 255, 0.3);
 }
 
-.persona img {
-    height: 60px;
-    width: 60px;
-    object-fit: cover;
-    border-radius: 50%;
-    border: 2px solid #666;
+.persona {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #666;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+  margin-bottom: 15px;
+  margin-left: 5px;
+  margin-right: 5px;
+  background: linear-gradient(to bottom, rgba(126, 126, 126, 0.6), rgba(94, 94, 94, 0.4));
+  padding: 0;
+  overflow: hidden;
+  border-radius: 2px;
 }
 
-.persona .info {
-    display: flex;
-    flex-direction: column;
-    color: #eee;
+.persona-img {
+  width: 70%;
+  height: auto;
+  object-fit: cover;
+  align-self: center;
+  margin-top: 4px;
+  border: 1px solid #424242;
 }
 
-.persona .info h3 {
-    margin: 0;
-    font-size: 1.2rem;
-    color: #fff;
+.persona-info {
+  display: flex;
+  flex-direction: column;
+  padding: 5px;
 }
 
-.persona .info p {
-    margin: 5px 0 0 0;
-    font-size: 0.95rem;
-    color: #ccc;
+.persona-detalle {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  border: #555 solid 1px;
+  padding: 7px;
+  border-radius: 3px;
+  background-color: #333;
+}
+
+.persona-info h3 {
+  font-size: 1em;
+  margin-top: 0;
+  margin-bottom: 5px;
+  color: #00ffe0;
+}
+
+.persona-info p {
+  font-size: 0.5em;
+  color: #ffffff;
+}
+
+.feed-header {
+  position: sticky;
+  width: 100%;
+  top: 0;
+  z-index: 10;
+  font-size: 0.4rem;
+  color: #00ffe0;
+  border-bottom: 1px solid #444;
+  padding: 5px;
+  background-color: rgba(0, 0, 0, 0.9);
+  text-transform: uppercase;
+  font-family: 'Courier New', monospace;
+  text-align: center;
+}
+
+.ticker {
+  position: sticky;
+  width: 100%;
+  bottom: 0;
+  z-index: 10;
+  font-size: 0.3rem;
+  color: #ff4444;
+  background-color: #111;
+  padding: 3px 0px 10px;
+  font-family: monospace;
+  border-top: 1px solid #333;
+  text-align: left;
+  overflow: hidden;
+  white-space: nowrap;
+  animation: blink 2s infinite;
+}
+
+.ticker-content {
+  display: inline-block;
+  padding-left: 100%;
+  animation: scroll-left 15s linear infinite;
+}
+
+@keyframes scroll-left {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-295%);
+  }
+}
+
+@keyframes blink {
+  50%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
 }

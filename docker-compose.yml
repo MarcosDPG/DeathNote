@@ -3,5 +3,13 @@ services:
     build: .
     ports:
       - "8080:8080"
+    depends_on:
+      - redis
     volumes:
       - ./:/project/
+  redis:
+    image: redis
+    container_name: redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
