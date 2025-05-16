@@ -19,6 +19,31 @@ def registrar_criminal(data: dict):
     doc_ref.set(data)
     return doc_ref.id
 
+def actualizar_criminal(criminal_id: str, updates: dict):
+    try:
+        criminal_ref = db.collection("criminales").document(criminal_id)
+        doc = criminal_ref.get()
+        
+        if not doc.exists:
+            raise ValueError("El criminal no existe")
+        
+        updates_validos = {k: v for k, v in updates.items() if v is not None}
+        
+        if not updates_validos:
+            raise ValueError("No se proporcionaron campos válidos para actualizar")
+        
+        # Actualización
+        criminal_ref.update(updates_validos)
+        
+        # Devuelve un diccionario simple
+        return {
+            "id": criminal_id,
+            **updates_validos,
+            "estado": doc.get("estado")  # Mantenemos el estado existente
+        }
+        
+    except Exception as e:
+        raise ValueError(f"Error al actualizar criminal: {str(e)}")
 def log_event(event_type: str, data: dict):
     db.collection("events").document().set({
         "type": event_type,
@@ -75,7 +100,7 @@ def escribir_nombre_deathnote(criminal_id: str):
     deathnote_ref = db.collection("deathnote").document()
     muerte_data = {
         "criminal_id": criminal_id,
-        "nombre_completo": f"{criminal_data['nombres']} {criminal_data['apellidos']}",
+        "nombre_completo": criminal_data['nombre_completo'],
         "causa_muerte": "",
         "detalles_muerte": "",
         "fecha_registro": datetime.now(),

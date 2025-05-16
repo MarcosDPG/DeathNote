@@ -2,15 +2,6 @@ import asyncio
 import aioredis
 
 from contextlib import asynccontextmanager
-<<<<<<< HEAD
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-
-
-from fastapi.responses import HTMLResponse
-from fastapi.staticfiles import StaticFiles
-from pathlib import Path
-=======
 import asyncio
 import aioredis
 from app.events.scheduler import recibir_eventos
@@ -68,20 +59,5 @@ def get_redis_client() -> aioredis.Redis:
     return aioredis.Redis(host="redis", port=6379, db=0)
 def get_redis_client() -> aioredis.Redis:
     return aioredis.Redis(host="redis", port=6379, db=0)
->>>>>>> cffbe77ba31a96ca3d58e0cf7c22be3e4f65f0c5
 
 
-<<<<<<< HEAD
-app.mount("/public", StaticFiles(directory="public"), name="public")
-
-@app.get("/", response_class=HTMLResponse)
-def read_html():
-    html_path = Path("public/index.html")
-    return HTMLResponse(content=html_path.read_text(), status_code=200)
-
-@app.get("/room", response_class=HTMLResponse)
-def read_html():
-    html_path = Path("public/room.html")
-    return HTMLResponse(content=html_path.read_text(), status_code=200)
-=======
->>>>>>> cffbe77ba31a96ca3d58e0cf7c22be3e4f65f0c5
