@@ -2,4 +2,4 @@ fastapi
 pydantic
 uvicorn[standard]
 firebase-admin
-websockets
+aioredis

@@ -1,169 +1,25 @@
-import asyncio
-from datetime import datetime
+from fastapi import APIRouter
 
-from fastapi import APIRouter, HTTPException, BackgroundTasks
-from pydantic import BaseModel
-
-from app.firebase.db import (
-    escribir_nombre_deathnote,
-    obtener_criminal_death_note,
-    actualizar_muerte_deathnote,
-    actualizar_estado_criminal,
-    EstadoCriminal
+from app.models.models import (
+    DeathNoteRequest,
+    CausaMuerteRequest,
+    DetallesMuerteRequest
 )
-from app.sockets.connection_manager import notificar_muerte
+
+from app.services.registro_muerte import escribir_muerte
+from app.services.definicion_causa import escribir_causa_muerte
+from app.services.definicion_detalles import escribir_detalles_muerte
 
 router = APIRouter(prefix="/api/deathnote")
-TIEMPO_ESPERA_EJECUCION_DEFAULT = 40  # segundos
-TIEMPO_ESPERA_EJECUCION_CAUSA = 400  # segundos
-TIEMPO_ESPERA_EJECUCION_DETALLES = 40  # segundos
 
-class DeathNoteRequest(BaseModel):
-    nombres: str
-    apellidos: str
-
-class CausaMuerteRequest(BaseModel):
-    criminal_id: str
-    causa_muerte: str
-
-class DetallesMuerteRequest(BaseModel):
-    criminal_id: str
-    detalles_muerte: str
-
-# Esperar 40 segundos antes de asignar la muerte por defecto y notificar a los clientes conectados
-async def asignar_muerte_defecto(criminal_id: str) -> dict:
-    # Simular un retraso de 40 segundos antes
-    await asyncio.sleep(TIEMPO_ESPERA_EJECUCION_DEFAULT)
-    # Revisar los datos del criminal en la death note
-    criminal_info = await obtener_criminal_death_note(criminal_id)
-    # Verificar si el criminal existe y su estado es "pendiente"
-    if not criminal_info or criminal_info["data"]["proceso"] != EstadoCriminal.PENDIENTE.value:
-        return {"error": "El criminal no existe o ya ha sido ejecutado."}
-
-    criminal_data = criminal_info["data"]
-    criminal_ref = criminal_info["ref"]
-
-    # Actualizar los datos localmente
-    criminal_data["causa_muerte"] = "Ataque al corazón"
-    criminal_data["proceso"] = EstadoCriminal.MUERTO.value
-    criminal_data["fecha_ejecucion"] = datetime.now().isoformat()
-
-    # Actualizar en la base de datos
-    await actualizar_muerte_deathnote(criminal_ref, criminal_data)
-
-    # Actualizar el estado del criminal a muerto en la colección de criminales
-    actualizar_estado_criminal(criminal_id)
-
-    # Notificar a todos los clientes conectados
-    await notificar_muerte(criminal_data)
-
-    return {"mensaje": f"Criminal {criminal_id} ejecutado exitosamente"}
-
-
-@router.post("/")
-async def escribir_muerte(request: DeathNoteRequest, background_tasks: BackgroundTasks) -> dict:
-    try:
-        resultado = escribir_nombre_deathnote(
-            nombres=request.nombres.strip().title(),
-            apellidos=request.apellidos.strip().title()
-        )
-        # Si no se especifica causa de muerte, asignar una por defecto
-        background_tasks.add_task(asignar_muerte_defecto, resultado["criminal_id"])
-
-        return {"id": resultado["criminal_id"], "mensaje": f"{resultado['nombre_completo']} será ejecutado en 40 segundos si no se especifica la causa."}
-
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Error al escribir en la Death Note: {e}")
-
-async def establecer_causa_muerte(criminal_id) -> dict:
-    # Esperar 400 segundos antes de asignar la causa de muerte
-    await asyncio.sleep(TIEMPO_ESPERA_EJECUCION_CAUSA)
-
-    criminal = await obtener_criminal_death_note(criminal_id)
-    criminal_data = criminal["data"]
-    criminal_ref = criminal["ref"]
-
-    # En caso de que el criminal tenga un proceso dieferente al que se le asignó una causa de muerte, no se ejecuta
-    if not criminal_data or criminal_data["proceso"] != EstadoCriminal.ASIGNADO.value:
-        return {"error": "El criminal no existe, está en otro proceso o ya ha sido ejecutado."}
-
-    criminal_data["proceso"] = EstadoCriminal.MUERTO.value
-    criminal_data["fecha_ejecucion"] = datetime.now().isoformat()
-
-    await actualizar_muerte_deathnote(criminal_ref, criminal_data)
-
-    # Actualizar el estado del criminal a muerto en la colección de criminales
-    actualizar_estado_criminal(criminal_id)
-
-    await notificar_muerte(criminal_data)
-    return {"mensaje": f"Criminal {criminal_id} ejecutado exitosamente sin detalles"}
+@router.post("/id/")
+async def registrar_nombre(request: DeathNoteRequest):
+    return await escribir_muerte(request)
 
 @router.put("/causa-muerte/")
-async def escribir_causa_muerte(causa_muerte_request: CausaMuerteRequest, background_tasks: BackgroundTasks) -> dict:
-    criminal = await obtener_criminal_death_note(causa_muerte_request.criminal_id.strip())
-
-    if not criminal:
-        raise HTTPException(status_code=404, detail="Criminal no encontrado en la Death Note")
-
-    criminal_data = criminal["data"]
-    criminal_ref = criminal["ref"]
-
-    # Verificar si el criminal ya ha sido ejecutado
-    if criminal_data["proceso"] != EstadoCriminal.PENDIENTE.value:
-        raise HTTPException(status_code=400, detail="El criminal ya ha sido ejecutado o no está en estado pendiente")
-
-    criminal_data["causa_muerte"] = causa_muerte_request.causa_muerte
-    criminal_data["proceso"] = EstadoCriminal.ASIGNADO.value
-
-    # Actualizar en la base de datos
-    await actualizar_muerte_deathnote(criminal_ref, criminal_data)
-
-    background_tasks.add_task(establecer_causa_muerte, causa_muerte_request.criminal_id)
-
-    return {"mensaje": f"Se ha asignado la causa de muerte '{causa_muerte_request.causa_muerte}' al criminal {criminal_data['nombre_completo']}, tienes 400 segundos para dar detalles."}
-
-async def establecer_detalles_muerte(criminal_id) -> dict:
-    # Esperar 400 segundos antes de asignar los detalles de muerte
-    await asyncio.sleep(TIEMPO_ESPERA_EJECUCION_DETALLES)
-
-    criminal = await obtener_criminal_death_note(criminal_id)
-    criminal_data = criminal["data"]
-    criminal_ref = criminal["ref"]
-
-    # En caso de que el criminal tenga un proceso diferente al que se le asignó una causa de muerte, no se ejecuta
-    if not criminal_data or criminal_data["proceso"] != EstadoCriminal.DETALLADO.value:
-        return {"error": "El criminal no existe, está en otro proceso o ya ha sido ejecutado."}
-
-    criminal_data["proceso"] = EstadoCriminal.MUERTO.value
-    criminal_data["fecha_ejecucion"] = datetime.now().isoformat()
-    await actualizar_muerte_deathnote(criminal_ref, criminal_data)
-    # Actualizar el estado del criminal a muerto en la colección de criminales
-    actualizar_estado_criminal(criminal_id)
-    await notificar_muerte(criminal_data)
-    return {"mensaje": f"Criminal {criminal_id} ejecutado exitosamente con detalles"}
+async def registrar_causa_muerte(request: CausaMuerteRequest):
+    return await escribir_causa_muerte(request)
 
 @router.put("/detalles/")
-async def escribir_detalles_muerte(detalles_muerte_request: DetallesMuerteRequest, background_tasks: BackgroundTasks) -> dict:
-    criminal = await obtener_criminal_death_note(detalles_muerte_request.criminal_id.strip())
-
-    if not criminal:
-        raise HTTPException(status_code=404, detail="Criminal no encontrado en la Death Note")
-
-    criminal_data = criminal["data"]
-    criminal_ref = criminal["ref"]
-
-    # Verificar si el criminal ya ha sido ejecutado
-    if criminal_data["proceso"] != EstadoCriminal.ASIGNADO.value:
-        raise HTTPException(status_code=400, detail="El criminal ya ha sido ejecutado o no se le ha asignado causa de muerte")
-
-    criminal_data["detalles_muerte"] = detalles_muerte_request.detalles_muerte
-    criminal_data["proceso"] = EstadoCriminal.DETALLADO.value
-
-    # Actualizar en la base de datos
-    await actualizar_muerte_deathnote(criminal_ref, criminal_data)
-    # Establcer detalles de muerte después para que el criminal se ejecute en 40 segundos
-    background_tasks.add_task(establecer_detalles_muerte, detalles_muerte_request.criminal_id)
-
-    return {"mensaje": f"Se han asignado los detalles de muerte '{detalles_muerte_request.detalles_muerte}' al criminal {criminal_data['nombre_completo']}, morirá en 40 segundos."}
+async def registrar_detalles_muerte(request: DetallesMuerteRequest):
+    return await escribir_detalles_muerte(request)
