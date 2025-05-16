@@ -33,6 +33,26 @@ def obtener_criminales():
     docs = db.collection("criminales").stream()
     return [{**doc.to_dict(), "id": doc.id} for doc in docs]
 
+def obtener_criminales_nombre(nombre: str):
+    """
+    Devuelve criminales que coincidan con el nombre y apellido.
+    """
+    query = db.collection("criminales")\
+              .where(filter=FieldFilter("nombre", "==", nombre))\
+              .stream()
+
+    # Convertir los resultados a una lista de diccionarios
+    resultados = []
+    for doc in query:
+        resultados.append({**doc.to_dict(), "id": doc.id})
+
+    # Si no hay resultados, devolver None
+    if not resultados:
+        return None
+
+    # Si hay múltiples resultados, devolver la lista
+    return resultados
+
 # Obtiene de la colección "deathnote" un criminal específico por su ID
 async def obtener_criminal_death_note(criminal_id: str):
     """
@@ -75,7 +95,7 @@ def escribir_nombre_deathnote(criminal_id: str):
     deathnote_ref = db.collection("deathnote").document()
     muerte_data = {
         "criminal_id": criminal_id,
-        "nombre_completo": f"{criminal_data['nombres']} {criminal_data['apellidos']}",
+        "nombre_completo": criminal_data["nombre"],
         "causa_muerte": "",
         "detalles_muerte": "",
         "fecha_registro": datetime.now(),
