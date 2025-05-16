@@ -22,13 +22,10 @@ async def listar_criminales():
 
 @router.get("/nombre/{nombre}")
 async def obtener_criminal(nombre: str):
-    try:
-        criminal = obtener_criminales_nombre(nombre)
-        if not criminal:
-            raise HTTPException(status_code=404, detail="Criminal no encontrado")
-        return criminal
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    criminal = obtener_criminales_nombre(nombre)
+    if not criminal:
+        raise HTTPException(status_code=400, detail="Criminal no encontrado")
+    return criminal
 
 @router.post("/registrar")
 async def registrar(criminal: Criminal):
