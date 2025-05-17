@@ -2,6 +2,10 @@
 
 Death Note es una aplicación web inspirada en el anime de Death Note. En esta plicación los usuarios pueden simular acciones vistas en la serie a través de la libreta, estas acciones son: escribir el nombre del criminal, subir una foto del mismo, especificar detalles de muerte y llevar un registro de los criminales. El proyecto busca proponer un frontend atractivo junto con un backend funcional y una base de datos funcional para almacenar notas.
 
+## 📸 Demo
+
+![image](https://github.com/user-attachments/assets/fee7e72c-4a12-4270-9998-ef1dcc234bb5)
+![image](https://github.com/user-attachments/assets/57ad9498-32a9-4839-8970-40685808821b)
 
 ## ⚒️ Tecnologías utilizadas
 
@@ -35,6 +39,26 @@ Death Note es una aplicación web inspirada en el anime de Death Note. En esta p
 - Libreta para escribir los nombres y detalles
 - Computador para revisar criminales en la base de datos
 - Guardado y consulta de entradas en la base de datos
+
+## 🔍 Estructura del proyecto
+
+DeathNote/
+├── app/
+│   ├── api/                        # Endpoints FastAPI
+│   ├── events/                     # Lógica de eventos
+│   ├── firebase/                   # Integración con Firebase
+│   ├── models/                     # Modelos Pydantic
+│   ├── services/                   # Lógica de negocio
+│   ├── sockets/                    # WebSockets
+│   └── main.py                     # Punto de entrada de la app
+├── public/
+│   ├── assets/                     # Imágenes, fuentes, etc.
+│   ├── css/                        # Hojas de estilo
+│   ├── js/                         # Scripts cliente
+├── tests/
+│   ├── test_api/                   # Tests de endpoints
+│   ├── test_firebase/              # Tests de integración con Firebase
+│   └── test_sockets/               # Tests de WebSockets
 
 ## 📄 Licencia
 
