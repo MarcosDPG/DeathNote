@@ -157,13 +157,23 @@ function setupSocketListeners(socket) {
                 selectnextInput(ele2);
                 ele2.value = data.detalles_muerte;
                 break;
-            case "muerte":
-                ele = document.querySelector(`.input_hoja[input_type='causa'][criminal_id='${data.criminal_id}']`)
-                ele2 = document.querySelector(`.input_hoja[input_type='detalles'][criminal_id='${data.criminal_id}']`)
-                ele.setAttribute("disabled",true);
-                ele2.setAttribute("disabled",true);
-                ele.value = data.causa_muerte;
-                ele2.value = data.detalles_muerte;
+            case "muerto":
+                try {
+                    ele = document.querySelector(`.input_hoja[input_type='causa'][criminal_id='${data.criminal_id}']`)
+                    ele2 = document.querySelector(`.input_hoja[input_type='detalles'][criminal_id='${data.criminal_id}']`)
+                    ele.setAttribute("disabled",true);
+                    if (!ele2) {
+                        selectnextInput(ele);
+                        ele2 = document.querySelector(`.input_hoja[input_type='detalles'][criminal_id='${data.criminal_id}']`)
+                    }
+                    ele2.setAttribute("disabled",true);
+                    ele.value = data.causa_muerte;
+                    ele2.value = data.detalles_muerte;
+                    ele.setAttribute("placeholder","")
+                    ele2.setAttribute("placeholder","")
+                } catch (error) {}
+                gestionarColaMensajes(`${data.nombre_completo} ha fallecido por ${data.causa_muerte}`);
+                fetchNoticias()
             default:
                 break;
         }
