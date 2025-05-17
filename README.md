@@ -17,7 +17,7 @@ Death Note es una aplicación web inspirada en el anime de Death Note. En esta p
     git clone https://github.com/MarcosDPG/DeathNote.git
     cd DeathNote
     ```
-2. Crea un archivo `.env` si tu aplicación lo requiere:
+2. Crea un archivo `.env`:
     ```bash
     cp .env.example .env
     # Ajusta las variables de entorno en .env
@@ -31,6 +31,7 @@ Death Note es una aplicación web inspirada en el anime de Death Note. En esta p
 ## 🧪 Funcionalidades principales
 
 - Interfaz visual inspirada en el anime Death Note
+- Añadir criminales a la base de datos
 - Libreta para escribir los nombres y detalles
 - Computador para revisar criminales en la base de datos
 - Guardado y consulta de entradas en la base de datos
