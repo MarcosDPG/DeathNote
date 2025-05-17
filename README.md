@@ -40,8 +40,9 @@ Death Note es una aplicación web inspirada en el anime de Death Note. En esta p
 - Computador para revisar criminales en la base de datos
 - Guardado y consulta de entradas en la base de datos
 
-## 🔍 Estructura del proyecto
+## 📂 Estructura del proyecto
 
+```plaintext
 DeathNote/
 ├── app/
 │   ├── api/                        # Endpoints FastAPI
@@ -59,6 +60,7 @@ DeathNote/
 │   ├── test_api/                   # Tests de endpoints
 │   ├── test_firebase/              # Tests de integración con Firebase
 │   └── test_sockets/               # Tests de WebSockets
+```
 
 ## 📄 Licencia
 
