@@ -135,6 +135,14 @@ def escribir_nombre_deathnote(criminal_id: str):
 async def actualizar_muerte_deathnote(criminal_ref, datos: dict):
     criminal_ref.update(datos)
 
+async def obtener_hojas_deathnote():
+    """
+    Devuelve todos los registros de la deathnote.
+    """
+    docs = db.collection("deathnote").stream()
+    return [{**doc.to_dict(), "id": doc.id} for doc in docs]
+
+
 """
 def listar_registros_deathnote():
     registros = db.collection("deathnote")\

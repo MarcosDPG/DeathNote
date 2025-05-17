@@ -14,14 +14,14 @@ async def escribir_detalles_muerte(detalles_muerte_request: DetallesMuerteReques
         criminal = await obtener_criminal_death_note(detalles_muerte_request.criminal_id.strip())
 
         if not criminal:
-            raise HTTPException(status_code=404, detail="Criminal no encontrado en la Death Note")
+            raise HTTPException(detail="Criminal no encontrado en la Death Note")
 
         criminal_data = criminal["data"]
         criminal_ref = criminal["ref"]
 
         # Verificar si el criminal ya ha sido ejecutado
         if criminal_data["proceso"] != EstadoCriminal.ASIGNADO.value:
-            raise HTTPException(status_code=400, detail="El criminal ya ha sido ejecutado o no se le ha asignado causa de muerte")
+            raise HTTPException(detail="El criminal ya ha sido ejecutado o no se le ha asignado causa de muerte")
 
         criminal_data["detalles_muerte"] = detalles_muerte_request.detalles_muerte
         criminal_data["proceso"] = EstadoCriminal.DETALLADO.value

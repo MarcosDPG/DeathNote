@@ -13,22 +13,29 @@ from datetime import datetime
 router = APIRouter(prefix="/api/criminales")
 
 @router.get("/")
-async def listar_criminales():
+async def listar_todos_criminales():
     try:
         criminales = obtener_criminales()
         return {"criminales": criminales}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.get("/nombre/{nombre}")
-async def obtener_criminal(nombre: str):
+
+@router.get("/muertos")
+async def listar_criminales_muertos():
     try:
-        criminal = obtener_criminales_nombre(nombre)
-        if not criminal:
-            raise HTTPException(status_code=404, detail="Criminal no encontrado")
-        return criminal
+        criminales = obtener_criminales()
+        muertos = [c for c in criminales if c.get("estado", "").lower() == "muerto"]
+        return {"criminales": muertos}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+@router.get("/nombre/{nombre}")
+async def obtener_criminal(nombre: str):
+    criminal = obtener_criminales_nombre(nombre)
+    if not criminal:
+        raise HTTPException(status_code=400, detail="Criminal no encontrado")
+    return criminal
 
 @router.post("/registrar")
 async def registrar(criminal: Criminal):
