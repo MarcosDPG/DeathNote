@@ -17,6 +17,7 @@ Este test garantiza que se cree un documento en la colección "criminales" y que
 def test_registrar_criminal():
     mock_doc_ref = MagicMock()
     mock_doc_ref.id = "abc123"
+    # Simula el comportamiento de db.collection(...)
     with patch("app.firebase.db.db.collection") as mock_collection:
         mock_collection.return_value.document.return_value = mock_doc_ref
         result = registrar_criminal({"nombre": "John"})
@@ -36,7 +37,9 @@ def test_log_event():
         assert args[0]["criminal_id"] == "abc"
         assert "timestamp" in args[0]
 
-# --- obtener_criminales ---
+"""
+Este test garantiza que se devuelvan todos los criminales registrados en la colección "criminales".
+"""
 def test_obtener_criminales():
     mock_doc = MagicMock()
     mock_doc.to_dict.return_value = {"nombre": "Jane"}
@@ -46,7 +49,11 @@ def test_obtener_criminales():
         result = obtener_criminales()
         assert result == [{"nombre": "Jane", "id": "id1"}]
 
-# --- obtener_criminales_nombre ---
+"""
+Este test garantiza que se devuelvan criminales que coincidan con el nombre y apellido y que cuando se reciban
+los datos por parte de firebase, se devuelvan como una lista de diccionarios.
+Si no hay resultados, se devuelve None.
+"""
 def test_obtener_criminales_nombre():
     mock_doc = MagicMock()
     mock_doc.to_dict.return_value = {"nombre": "Jane"}
@@ -62,15 +69,21 @@ def test_obtener_criminales_nombre():
         result = obtener_criminales_nombre("Jane")
         assert result is None
 
-# --- actualizar_estado_criminal ---
+"""
+Prueba que garantiza que se actualice el estado de un criminal a muerto.
+"""
 def test_actualizar_estado_criminal():
     mock_doc_ref = MagicMock()
     with patch("app.firebase.db.db.collection") as mock_collection:
         mock_collection.return_value.document.return_value = mock_doc_ref
         actualizar_estado_criminal("abc123")
+        # Verifica si se ha llamado a la función update con el estado correcto
         mock_doc_ref.update.assert_called_once_with({"estado": "muerto"})
 
-# --- escribir_nombre_deathnote ---
+"""
+Este test garantiza que se escriba el nombre del criminal en la Death Note y que se devuelvan
+los datos pertinentes.
+"""
 def test_escribir_nombre_deathnote_exitoso():
     mock_doc = MagicMock()
     mock_doc.exists = True
@@ -78,8 +91,8 @@ def test_escribir_nombre_deathnote_exitoso():
     mock_deathnote_ref = MagicMock()
 
     with patch("app.firebase.db.db.collection") as mock_collection:
-        # Mock criminales.document().get()
         mock_criminales = MagicMock()
+        # Mock criminales.document().get()
         mock_criminales.document.return_value.get.return_value = mock_doc
         # Mock deathnote.where().limit().get() para que no haya sentencia previa
         mock_deathnote = MagicMock()
@@ -95,6 +108,9 @@ def test_escribir_nombre_deathnote_exitoso():
         assert result["proceso"] == "pendiente"
         mock_deathnote_ref.set.assert_called_once()
 
+"""
+Este test garantiza que se lance un ValueError si el criminal no existe en la base de datos.
+"""
 def test_escribir_nombre_deathnote_no_existe():
     mock_doc = MagicMock()
     mock_doc.exists = False
@@ -103,6 +119,9 @@ def test_escribir_nombre_deathnote_no_existe():
         with pytest.raises(ValueError):
             escribir_nombre_deathnote("abc123")
 
+""""
+Este test garantiza que se lance un ValueError si el criminal no tiene una foto registrada.
+"""
 def test_escribir_nombre_deathnote_sin_foto():
     mock_doc = MagicMock()
     mock_doc.exists = True
@@ -112,6 +131,9 @@ def test_escribir_nombre_deathnote_sin_foto():
         with pytest.raises(ValueError):
             escribir_nombre_deathnote("abc123")
 
+"""
+Este test garantiza que se lance un ValueError si el criminal ya ha sido sentenciado.
+"""
 def test_escribir_nombre_deathnote_ya_sentenciado():
     mock_doc = MagicMock()
     mock_doc.exists = True
@@ -122,7 +144,9 @@ def test_escribir_nombre_deathnote_ya_sentenciado():
         with pytest.raises(ValueError):
             escribir_nombre_deathnote("abc123")
 
-# --- actualizar_muerte_deathnote ---
+"""
+Este test garantiza que se utilice la referencia correcta para actualizar la muerte en la Death Note.
+"""
 @pytest.mark.asyncio
 async def test_actualizar_muerte_deathnote():
     mock_ref = MagicMock()
