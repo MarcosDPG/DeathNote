@@ -498,6 +498,7 @@ box-shadow: 0 0 8px rgba(0, 255, 255, 0.3);
 }
 
 #portavoz {
+    z-index: 100;
     width: 30%;
     height: fit-content;
     position: absolute;

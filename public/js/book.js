@@ -15,8 +15,6 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 
-send_data = function (currentInput) {}
-
 function selectnextInput(currentInput) {
     const padre = currentInput.parentElement;
     if (currentInput.getAttribute("input_type") === "nombre") {
@@ -26,6 +24,7 @@ function selectnextInput(currentInput) {
     }
     currentInput.setAttribute("disabled", true);
     if (nextInput) {
+        nextInput.setAttribute("criminal_id", currentInput.getAttribute("criminal_id"));
         nextInput.classList.remove('hidden');
         nextInput.focus();
         nextInput.select();
@@ -95,7 +94,7 @@ function cargarHojas(contenidos) {
     paginaActual = 0;
 }
 
-function crear_hoja(contenido={"id": "", "nombre": "", "causa": "", "detalles": ""}) {
+function crear_hoja(contenido={"id": "", "criminal_id": "", "nombre_completo": "", "causa_muerte": "", "detalles_muerte": ""}) {
     const contenedor = document.getElementById("hojas");
     const hoja = document.createElement("div");
     hoja.classList.add("hoja");
@@ -104,6 +103,7 @@ function crear_hoja(contenido={"id": "", "nombre": "", "causa": "", "detalles": 
     const nombre = document.createElement("textarea");
     nombre.classList.add("input_hoja");
     nombre.setAttribute("id_hoja", contenido["id"]);
+    nombre.setAttribute("criminal_id", contenido["criminal_id"]);
     nombre.setAttribute("input_type", "nombre");
     nombre.setAttribute("placeholder", "Escribe el nombre de la persona aquí...");
     if (contenido["nombre"]) {
@@ -114,6 +114,7 @@ function crear_hoja(contenido={"id": "", "nombre": "", "causa": "", "detalles": 
     const causa = document.createElement("textarea");
     causa.classList.add("hidden", "input_hoja");
     causa.setAttribute("id_hoja", contenido["id"]);
+    causa.setAttribute("criminal_id", contenido["criminal_id"]);
     causa.setAttribute("input_type", "causa");
     causa.setAttribute("placeholder", "Escribe la causa de la muerte aquí...");
     if (contenido["causa"]) {
@@ -125,6 +126,7 @@ function crear_hoja(contenido={"id": "", "nombre": "", "causa": "", "detalles": 
     const detalles = document.createElement("textarea");
     detalles.classList.add("hidden", "input_hoja");
     detalles.setAttribute("id_hoja", contenido["id"]);
+    detalles.setAttribute("criminal_id", contenido["criminal_id"]);
     detalles.setAttribute("input_type", "detalles");
     detalles.setAttribute("placeholder", "Escribe los detalles de la muerte aquí...");
     if (contenido["detalles"]) {
@@ -151,10 +153,9 @@ function crear_hoja(contenido={"id": "", "nombre": "", "causa": "", "detalles": 
             this.style.height = (this.scrollHeight) + "px";
         });
         area.addEventListener("keydown", function (e) {
-            if (e.key === "Enter") {
+            if (e.key == "Enter") {
                 e.preventDefault();
                 send_data(this);
-                selectnextInput(this);
             }
         });
     });
@@ -162,6 +163,86 @@ function crear_hoja(contenido={"id": "", "nombre": "", "causa": "", "detalles": 
 
 function fetch_hojas() {
     return Promise.resolve([
-        {"id": "hoja1", "nombre": "Nombre 1", "causa": "Causa 1", "detalles": "Detalles 1"}
+        {"id": "hoja1", "criminal_id": "id", "nombre_completo": "Nombre 1", "causa_muerte": "Causa 1", "detalles_muerte": "Detalles 1"}
     ]);
+}
+
+function send_data(currentInput, id=null) {
+    value = currentInput.value.trim();
+    if (value === "") {
+        alert("No puedes dejar el campo vacío");
+        return;
+    } else {
+        const inputType = currentInput.getAttribute("input_type");
+        switch (inputType) {
+            case "nombre":
+                requestIdByName(value).then(res => {
+                    if (res.ok) {
+                        res.json().then(data => {
+                            let criminales = [];
+                            data.forEach(criminal => {
+                                if (criminal.estado === "vivo" && criminal.foto_base64 !== "no_foto") {
+                                    criminales.push(criminal);
+                                }
+                            });
+                            if (criminales.length > 0) {
+                                let id = criminales[0].id;
+                                currentInput.setAttribute("disabled", true);
+                                currentInput.value = criminales[0].nombre_completo;
+                                currentInput.setAttribute("criminal_id", id);
+                                send_name(value, currentInput.getAttribute("criminal_id")).then(res => {
+                                    if (res.ok) {
+                                        selectnextInput(currentInput);
+                                    } else {
+                                        gestionarColaMensajes("Hmmm... Algo parece estar mal con el nombre que has escrito. ¿Podrías revisarlo?");
+                                    }
+                                });
+                            } else {
+                                gestionarColaMensajes("Hmmm... No he encontrado a nadie vivo con ese nombre. ¿Podrías revisarlo?");
+                            }
+                        });
+                    } else {
+                        switch (res.status) {
+                            case 400:
+                                gestionarColaMensajes("Hmmm... No he encontrado a nadie con ese nombre. ¿Podrías revisarlo?");
+                                break;
+                        
+                            default:
+                                gestionarColaMensajes("Hmmm... Algo parece estar mal con el nombre que has escrito. ¿Podrías revisarlo?");
+                                break;
+                        }
+                    }
+                });
+                break;
+            case "causa":
+                send_causa(value, id);
+                break;
+        
+            default:
+                break;
+        }
+    }
+}
+
+function requestIdByName(value) {
+    return fetch(window.location.origin + `/api/criminales/nombre/${value}`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json"
+        },
+    });
+}
+
+function send_name(data, id) {
+    return fetch(window.location.origin + `/api/deathnote/id/`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({criminal_id: id})
+    });
+}
+
+function send_causa(data, id) {
+    return Promise.resolve(true);
 }

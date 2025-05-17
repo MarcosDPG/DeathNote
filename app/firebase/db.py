@@ -63,7 +63,7 @@ def obtener_criminales_nombre(nombre: str):
     Devuelve criminales que coincidan con el nombre y apellido.
     """
     query = db.collection("criminales")\
-              .where(filter=FieldFilter("nombre", "==", nombre))\
+              .where(filter=FieldFilter("nombre_completo", "==", nombre))\
               .stream()
 
     # Convertir los resultados a una lista de diccionarios
