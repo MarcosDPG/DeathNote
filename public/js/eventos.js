@@ -125,3 +125,55 @@ function ocultarShinigami() {
         burbuja.style.display = "none";
     }, 500);
 }
+
+// ************************ SOCKETS ************************ //
+
+document.addEventListener("DOMContentLoaded", () => {
+    const socket = new WebSocket(`ws://${window.location.host}/ws/notificaciones`);
+    setupSocketListeners(socket)
+})
+
+function setupSocketListeners(socket) {
+    socket.onopen = () => {
+      console.log('Conectado al WebSocket');
+    };
+
+    socket.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        console.log('Mensaje recibido:', data);
+        let ele = document.querySelector(`.input_hoja[input_type='causa'][criminal_id='${data.criminal_id}']`)
+        let ele2 = document.querySelector(`.input_hoja[input_type='detalles'][criminal_id='${data.criminal_id}']`)
+        switch (data.proceso) {
+            case "pendiente":
+                gestionarColaMensajes(`${data.nombre_completo}, interesante`);
+                break;
+            case "asignado":
+                ele = document.querySelector(`.input_hoja[input_type='causa'][criminal_id='${data.criminal_id}']`)
+                selectnextInput(ele);
+                ele.value = data.causa_muerte;
+                break;
+            case "detallado":
+                ele2 = document.querySelector(`.input_hoja[input_type='detalles'][criminal_id='${data.criminal_id}']`)
+                selectnextInput(ele2);
+                ele2.value = data.detalles_muerte;
+                break;
+            case "muerte":
+                ele = document.querySelector(`.input_hoja[input_type='causa'][criminal_id='${data.criminal_id}']`)
+                ele2 = document.querySelector(`.input_hoja[input_type='detalles'][criminal_id='${data.criminal_id}']`)
+                ele.setAttribute("disabled",true);
+                ele2.setAttribute("disabled",true);
+                ele.value = data.causa_muerte;
+                ele2.value = data.detalles_muerte;
+            default:
+                break;
+        }
+    };
+
+    socket.onerror = (error) => {
+        console.error('WebSocket error:', error);
+    };
+
+    socket.onclose = () => {
+        console.log('WebSocket cerrado');
+    };
+}

@@ -79,8 +79,6 @@ function cambiarHoja(direccion) {
 
 function cargarHojas(contenidos) {
     contenidos.forEach((contenido, index) => {
-        console.log(contenido);
-        console.log(contenido["criminal_id"]);
         crear_hoja(contenido);
     });
     paginaActual = 0;
@@ -167,7 +165,6 @@ function fetch_hojas() {
         }).then(res => {
             if (res.ok) {
                 res.json().then(data => {
-                    console.log(data);
                     if (data.length > 0) {
                         cargarHojas(data);
                     } else {

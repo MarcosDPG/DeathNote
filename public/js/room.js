@@ -1,10 +1,5 @@
 document.addEventListener("DOMContentLoaded", function() {
-    const room = document.getElementById("room");
-    const objectSelected = document.getElementById("object_selected");
-
-    if (room && objectSelected) {
-        //room.style.width = (window.innerWidth - objectSelected.offsetWidth) + "px";
-    }
+    fetchNoticias();
 });
 
 function cerrar_libro() {
@@ -70,3 +65,49 @@ document.getElementById("portatil").addEventListener("click", function() {
         }
     }
 });
+
+function fetchNoticias() {
+    let noticias = "";
+    Promise.all([
+        fetch(`${window.location.origin}/api/deathnote/hojas/`)
+            .then(res => {
+                if (!res.ok) throw new Error("Error al cargar las hojas");
+                return res.json();
+            }),
+        fetch(`${window.location.origin}/api/criminales/muertos`)
+            .then(res => {
+                if (!res.ok) throw new Error("Error al obtener los criminales muertos");
+                return res.json();
+            })
+    ])
+    .then(([hojas, muertos]) => {
+        let mapaMuertos = {};
+        muertos.criminales.forEach(criminal => {
+            mapaMuertos[criminal.id] = criminal;
+        });
+
+        hojas.forEach( h => {
+            const criminal = mapaMuertos[h.criminal_id];
+            if (criminal) {
+                noticias += buildNoticia({ ...h, ...criminal });
+            }
+        });
+
+        document.getElementById("personas").innerHTML = noticias;
+    })
+    .catch(error => {
+        console.error("Error al cargar las noticias:", error);
+    });
+}
+
+function buildNoticia(data) {
+    let noticia = `'${data.causa_muerte}, es la primer hipotesis en este caso', dice el capitan de la policia.\n\n
+    ${data.detalles_muerte}`;
+    return `<li class="persona">
+                <img src="data:image/jpeg;base64,${data.foto_base64}" alt="${data.nombre_completo}" class="persona-img">
+                <div class="persona-info">
+                    <h3 class="persona-nombre">${data.nombre_completo} fallecio</h3>
+                    <p class="persona-detalle">${noticia}</p>
+                </div>
+            </li>`
+}
