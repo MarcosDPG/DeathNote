@@ -23,7 +23,7 @@ timers = {}
 
 # Definir los tiempos de espera
 TIEMPO_ESPERA_EJECUCION_DEFAULT = 40  # segundos
-TIEMPO_ESPERA_EJECUCION_CAUSA = 400  # segundos
+TIEMPO_ESPERA_EJECUCION_CAUSA = 10  # segundos
 TIEMPO_ESPERA_EJECUCION_DETALLES = 40  # segundos
 
 async def recibir_eventos(r: aioredis.Redis):
