@@ -24,7 +24,7 @@ timers = {}
 # Definir los tiempos de espera
 TIEMPO_ESPERA_EJECUCION_DEFAULT = 40  # segundos
 TIEMPO_ESPERA_EJECUCION_CAUSA = 400  # segundos
-TIEMPO_ESPERA_EJECUCION_DETALLES = 10  # segundos
+TIEMPO_ESPERA_EJECUCION_DETALLES = 40  # segundos
 
 async def recibir_eventos(r: aioredis.Redis):
     # Esperar y recibir eventos del canal
@@ -85,11 +85,12 @@ async def asignar_muerte_defecto(criminal_id: str) -> dict:
 
         # Actualizar en la base de datos
         await actualizar_muerte_deathnote(criminal_ref, criminal_data)
-
+        criminal_data["fecha_registro"] = str(criminal_data["fecha_registro"])
+        criminal_data["fecha_ejecucion"] = str(criminal_data["fecha_ejecucion"])
         # Actualizar el estado del criminal a muerto en la colección de criminales
         actualizar_estado_criminal(criminal_id)
 
-        await publish_event("MuertePorDefecto", criminal_data)
+        await publish_event("MuerteDefecto", criminal_data)
     # Agregar el temporizador al diccionario
     timers[criminal_id] = asyncio.create_task(task())
 
@@ -113,7 +114,8 @@ async def establecer_causa_muerte(criminal_id) -> dict:
 
         # Actualizar el estado del criminal a muerto en la colección de criminales
         actualizar_estado_criminal(criminal_id)
-
+        criminal_data["fecha_registro"] = str(criminal_data["fecha_registro"])
+        criminal_data["fecha_ejecucion"] = str(criminal_data["fecha_ejecucion"])
         # Crear un evento de muerte
         await publish_event("MuerteConCausa", criminal_data)
     timers[criminal_id] = asyncio.create_task(task())
