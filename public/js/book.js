@@ -167,7 +167,7 @@ function fetch_hojas() {
     ]);
 }
 
-function send_data(currentInput, id=null) {
+function send_data(currentInput) {
     value = currentInput.value.trim();
     if (value === "") {
         alert("No puedes dejar el campo vacío");
@@ -215,7 +215,22 @@ function send_data(currentInput, id=null) {
                 });
                 break;
             case "causa":
-                send_causa(value, id);
+                send_causa(value, currentInput.getAttribute("criminal_id")).then(res => {
+                    if (res.ok) {
+                        selectnextInput(currentInput);
+                    } else {
+                        gestionarColaMensajes("Hmmm... Algo parece estar mal con la causa de muerte que has escrito. ¿Podrías revisarlo?");
+                    }
+                });
+                break;
+            case "detalles":
+                send_detalles(value, currentInput.getAttribute("criminal_id")).then(res => {
+                    if (res.ok) {
+                        selectnextInput(currentInput);
+                    } else {
+                        gestionarColaMensajes("Hmmm... Algo parece estar mal con los detalles de la muerte que has escrito. ¿Podrías revisarlo?");
+                    }
+                });
                 break;
         
             default:
@@ -244,5 +259,21 @@ function send_name(data, id) {
 }
 
 function send_causa(data, id) {
-    return Promise.resolve(true);
+    return fetch(window.location.origin + `/api/deathnote/causa-muerte/`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({criminal_id: id, causa_muerte: data})
+    });
+}
+
+function send_detalles(data, id) {
+    return fetch(window.location.origin + `/api/deathnote/detalles/`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({criminal_id: id, detalles_muerte: data})
+    });
 }
