@@ -2,17 +2,7 @@ var paginaActual = 0;
 var hojas = []; // Aquí se guardarán las hojas HTML
 
 document.addEventListener("DOMContentLoaded", function() {
-    fetch_hojas().then(data => {
-        if (data.length > 0) {
-            cargarHojas(data);
-        } else {
-            crear_hoja({"id": "hoja" + (paginaActual + 1)});
-        }
-    }
-    ).catch(error => {
-        console.error("Error al cargar las hojas:", error);
-        crear_hoja({"id": "hoja" + (paginaActual + 1)});
-    });
+    fetch_hojas();
 });
 
 function selectnextInput(currentInput) {
@@ -89,6 +79,8 @@ function cambiarHoja(direccion) {
 
 function cargarHojas(contenidos) {
     contenidos.forEach((contenido, index) => {
+        console.log(contenido);
+        console.log(contenido["criminal_id"]);
         crear_hoja(contenido);
     });
     paginaActual = 0;
@@ -106,10 +98,6 @@ function crear_hoja(contenido={"id": "", "criminal_id": "", "nombre_completo": "
     nombre.setAttribute("criminal_id", contenido["criminal_id"]);
     nombre.setAttribute("input_type", "nombre");
     nombre.setAttribute("placeholder", "Escribe el nombre de la persona aquí...");
-    if (contenido["nombre"]) {
-        nombre.setAttribute("disabled", true);
-        nombre.value = contenido["nombre"];
-    }
 
     const causa = document.createElement("textarea");
     causa.classList.add("hidden", "input_hoja");
@@ -117,11 +105,6 @@ function crear_hoja(contenido={"id": "", "criminal_id": "", "nombre_completo": "
     causa.setAttribute("criminal_id", contenido["criminal_id"]);
     causa.setAttribute("input_type", "causa");
     causa.setAttribute("placeholder", "Escribe la causa de la muerte aquí...");
-    if (contenido["causa"]) {
-        causa.setAttribute("disabled", true);
-        causa.value = contenido["causa"];
-        causa.classList.remove("hidden");
-    }
 
     const detalles = document.createElement("textarea");
     detalles.classList.add("hidden", "input_hoja");
@@ -129,10 +112,23 @@ function crear_hoja(contenido={"id": "", "criminal_id": "", "nombre_completo": "
     detalles.setAttribute("criminal_id", contenido["criminal_id"]);
     detalles.setAttribute("input_type", "detalles");
     detalles.setAttribute("placeholder", "Escribe los detalles de la muerte aquí...");
-    if (contenido["detalles"]) {
-        detalles.setAttribute("disabled", true);
-        detalles.value = contenido["detalles"];
-        detalles.classList.remove("hidden");
+
+
+    if (contenido["nombre_completo"]) {
+        nombre.setAttribute("disabled", true);
+        nombre.value = contenido["nombre_completo"];
+        if (contenido["causa_muerte"] !== "") {
+            causa.setAttribute("disabled", true);
+            causa.setAttribute("placeholder", "");
+            causa.value = contenido["causa_muerte"];
+            if (contenido["detalles_muerte"] !== "" || contenido["proceso"] === "muerto") {
+                detalles.setAttribute("disabled", true);
+                detalles.setAttribute("placeholder", "");
+                detalles.value = contenido["detalles_muerte"];
+            }
+            detalles.classList.remove("hidden");
+        }
+        causa.classList.remove("hidden");
     }
 
     // Agregamos los campos a la hoja
@@ -162,9 +158,31 @@ function crear_hoja(contenido={"id": "", "criminal_id": "", "nombre_completo": "
 }
 
 function fetch_hojas() {
-    return Promise.resolve([
-        {"id": "hoja1", "criminal_id": "id", "nombre_completo": "Nombre 1", "causa_muerte": "Causa 1", "detalles_muerte": "Detalles 1"}
-    ]);
+    fetch(window.location.origin + '/api/deathnote/hojas/', 
+        {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            },
+        }).then(res => {
+            if (res.ok) {
+                res.json().then(data => {
+                    console.log(data);
+                    if (data.length > 0) {
+                        cargarHojas(data);
+                    } else {
+                        crear_hoja({"id": "hoja" + (paginaActual + 1)});
+                    }
+                }
+                ).catch(error => {
+                    console.error("Error al cargar las hojas:", error);
+                    crear_hoja({"id": "hoja" + (paginaActual + 1)});
+                });
+            } else {
+                throw new Error("Error al cargar las hojas");
+            }
+        }
+    );
 }
 
 function send_data(currentInput) {
@@ -180,8 +198,20 @@ function send_data(currentInput) {
                     if (res.ok) {
                         res.json().then(data => {
                             let criminales = [];
+                            let criminales_muertos = [];
+                            let criminales_vivos = [];
+                            let criminales_sin_foto = [];
                             data.forEach(criminal => {
-                                if (criminal.estado === "vivo" && criminal.foto_base64 !== "no_foto") {
+                                if (criminal.estado === "vivo") {
+                                    criminales_vivos.push(criminal);
+                                } else {
+                                    criminales_muertos.push(criminal);
+                                }
+                            });
+                            criminales_vivos.forEach(criminal => {
+                                if (criminal.foto_base64 === "no_foto") {
+                                    criminales_sin_foto.push(criminal);
+                                } else {
                                     criminales.push(criminal);
                                 }
                             });
@@ -198,13 +228,18 @@ function send_data(currentInput) {
                                     }
                                 });
                             } else {
-                                gestionarColaMensajes("Hmmm... No he encontrado a nadie vivo con ese nombre. ¿Podrías revisarlo?");
+                                if (criminales_sin_foto.length > 0) {
+                                    gestionarColaMensajes("Hmmm... Parece que olvidaste el rostro de esta persona. ¿Podrías recordarlo mas tarde?");
+                                }
+                                if (criminales_muertos.length > 0) {
+                                    gestionarColaMensajes("Estaria interesante matar a alguien que ya está muerto. ¿No crees?");
+                                }
                             }
                         });
                     } else {
                         switch (res.status) {
                             case 400:
-                                gestionarColaMensajes("Hmmm... No he encontrado a nadie con ese nombre. ¿Podrías revisarlo?");
+                                gestionarColaMensajes("Es un buen nombre para un futuro criminal jejeje");
                                 break;
                         
                             default:
