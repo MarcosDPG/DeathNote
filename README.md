@@ -21,10 +21,23 @@ Death Note es una aplicación web inspirada en el anime de Death Note. En esta p
     git clone https://github.com/MarcosDPG/DeathNote.git
     cd DeathNote
     ```
-2. Crea un archivo `.env`:
+2. Crea un archivo `deathnote.json`:
+   con la siguiente estructura (debes configurar un proyecto de firebase)
     ```bash
-    cp .env.example .env
-    # Ajusta las variables de entorno en .env
+    {
+  "type": "",
+  "project_id": "",
+  "private_key_id": "",
+  "private_key": "",
+  "client_email": "",
+  "client_id": "",
+  "auth_uri": "",
+  "token_uri": "",
+  "auth_provider_x509_cert_url": "",
+  "client_x509_cert_url": "",
+  "universe_domain": ""
+}
+
     ```
 3. Ejecuta con Docker:
     ```bash
